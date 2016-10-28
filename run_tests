@@ -1,0 +1,7 @@
+#!/bin/bash
+
+virtualenv -p python3 venv_tests
+source venv_tests/bin/activate
+pip install -r requirements.txt
+python3 -m unittest2 tests.test_wheathermap_api
+deactivate
