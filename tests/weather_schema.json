@@ -1,0 +1,16 @@
+{
+    "type" : "object",
+    "properties" : {
+        "coord" : {"type" : "object"},
+        "weather" : {"type" : "array"},
+        "base": {"type": "string"},
+        "main" : {"type" : "object"},
+        "wind" : {"type" : "object"},
+        "clouds": {"type": "object"},
+        "dt" : {"type" : "integer"},
+        "sys" : {"type" : "object"},
+        "id": {"type": "integer"},
+        "name" : {"type" : "string"},
+        "cod": {"type": "integer"}
+    }
+}

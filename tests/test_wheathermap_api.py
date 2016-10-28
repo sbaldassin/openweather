@@ -3,6 +3,8 @@ import os
 import random
 from configparser import ConfigParser
 from random import randint
+import json
+from jsonschema import validate
 
 import unittest2
 import requests
@@ -53,7 +55,8 @@ class TestWeathermapApi(unittest2.TestCase):
         self.assertIsNotNone(weather['weather'])
 
     def test_valid_data_return_for_multiple_cities(self):
-        with open('cities.json') as cities_by_country:
+        cities_file = os.path.join(os.path.dirname(__file__), "cities.json")
+        with open(cities_file) as cities_by_country:
             data = json.load(cities_by_country)
         countries = random.sample(list(data), 10)
         for country in countries:
@@ -63,3 +66,23 @@ class TestWeathermapApi(unittest2.TestCase):
             weather = requests.get(url, headers=self.headers).json()
             self.assertEqual(weather['name'].lower(), data[country][random_city].lower())
             self.assertIsNotNone(weather['weather'])
+
+    def test_invalid_celcius_farenheit_convertion(self):
+        url = self.WEATHER_URL.format(query="cordoba, ar", units="metric")
+        weather_celcius = requests.get(url, headers=self.headers).json()
+        url = self.WEATHER_URL.format(query="cordoba, ar", units="imperial")
+        weather_farenheit = requests.get(url, headers=self.headers).json()
+        self.assertEqual(round(abs(weather_farenheit['main']['temp'] -
+                             self._celcius_to_farenheit(weather_celcius['main']['temp'])), 1)
+                         , 0)
+
+    def test_validate_weather_schema(self):
+        schema_file = os.path.join(os.path.dirname(__file__), "weather_schema.json")
+        with open(schema_file) as schema_json:
+            schema = json.load(schema_json)
+        url = self.WEATHER_URL.format(query="berlin, de", units="metric")
+        weather = requests.get(url, headers=self.headers).json()
+        validate(weather, schema)
+
+    def _celcius_to_farenheit(self, celcius_temp):
+        return round((celcius_temp * 9 / 5) + 32, 2)
