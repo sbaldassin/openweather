@@ -1,5 +1,8 @@
+import json
 import os
+import random
 from configparser import ConfigParser
+from random import randint
 
 import unittest2
 import requests
@@ -50,3 +53,13 @@ class TestWeathermapApi(unittest2.TestCase):
         self.assertIsNotNone(weather['weather'])
 
     def test_valid_data_return_for_multiple_cities(self):
+        with open('cities.json') as cities_by_country:
+            data = json.load(cities_by_country)
+        countries = random.sample(list(data), 10)
+        for country in countries:
+            max_cities = len(data[country]) - 1
+            random_city = randint(0, max_cities)
+            url = self.WEATHER_URL.format(query=data[country][random_city], units="metric")
+            weather = requests.get(url, headers=self.headers).json()
+            self.assertEqual(weather['name'].lower(), data[country][random_city].lower())
+            self.assertIsNotNone(weather['weather'])
