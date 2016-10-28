@@ -36,3 +36,17 @@ class TestWeathermapApi(unittest2.TestCase):
         weather = requests.get(url, headers=self.headers).json()
         self.assertEqual(weather['name'].lower(), 'pecenongan')
         self.assertIsNotNone(weather['weather'])
+
+    def test_invalid_city_return_valid_error(self):
+        url = self.WEATHER_URL.format(query="not_existed", units="metric")
+        weather = requests.get(url, headers=self.headers).json()
+        self.assertEqual(weather['cod'], '502')
+        self.assertEqual(weather['message', 'Error: Not found city'])
+
+    def test_invalid_country_return_valid_error(self):
+        url = self.WEATHER_URL.format(query="cordoba, invalid_country", units="metric")
+        weather = requests.get(url, headers=self.headers).json()
+        self.assertEqual(weather['name'].lower(), 'monteria')
+        self.assertIsNotNone(weather['weather'])
+
+    def test_valid_data_return_for_multiple_cities(self):
